@@ -1,22 +1,29 @@
-export default function decorate(block) {
-  const pre = block.querySelector('pre');
+export default async function decorate(block) {
+  const link = block.querySelector('a');
 
-  if (!pre) {
-    console.error('custom-form: No <pre> tag with JSON found');
+  if (!link) {
+    console.error('custom-form: No JSON link found');
     return;
   }
 
   let json;
-
   try {
-    json = JSON.parse(pre.textContent.trim());
+    const resp = await fetch(`${link.href}.json`);
+    json = await resp.json();
   } catch (e) {
-    console.error('custom-form: Invalid JSON', e);
+    console.error('custom-form: Failed to fetch JSON', e);
     return;
   }
 
+  if (!json || !json.data) {
+    console.error('custom-form: Invalid JSON structure');
+    return;
+  }
+
+  // Clear authored content (link)
   block.innerHTML = '';
 
+  // Create form
   const form = document.createElement('form');
   form.className = 'custom-form';
 
@@ -33,6 +40,10 @@ export default function decorate(block) {
     input.name = field.Value;
     input.id = field.Value;
 
+    if (field.Placeholder) {
+      input.placeholder = field.Placeholder;
+    }
+
     if (field.Mandate === 'true') {
       input.required = true;
     }
@@ -41,10 +52,10 @@ export default function decorate(block) {
     form.appendChild(wrapper);
   });
 
-  const btn = document.createElement('button');
-  btn.type = 'submit';
-  btn.textContent = 'Submit';
+  const submitBtn = document.createElement('button');
+  submitBtn.type = 'submit';
+  submitBtn.textContent = 'Submit';
 
-  form.appendChild(btn);
+  form.appendChild(submitBtn);
   block.appendChild(form);
 }
