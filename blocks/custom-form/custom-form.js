@@ -1,58 +1,50 @@
 export default function decorate(block) {
+  const pre = block.querySelector('pre');
+
+  if (!pre) {
+    console.error('custom-form: No <pre> tag with JSON found');
+    return;
+  }
+
   let json;
 
-  // 1. Parse JSON authored in the block
   try {
-    json = JSON.parse(block.textContent);
+    json = JSON.parse(pre.textContent.trim());
   } catch (e) {
     console.error('custom-form: Invalid JSON', e);
     return;
   }
 
-  // 2. Clear raw JSON from DOM
   block.innerHTML = '';
 
-  // 3. Create form
   const form = document.createElement('form');
   form.className = 'custom-form';
 
-  // 4. Loop over sheet data
   json.data.forEach((field) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'form-field';
 
-    const fieldName = field['Name ']?.trim() || field.Value;
-
-    // Label
     const label = document.createElement('label');
-    label.setAttribute('for', field.Value);
-    label.textContent = fieldName;
-    wrapper.appendChild(label);
+    label.textContent = field['Name ']?.trim() || field.Value;
+    label.htmlFor = field.Value;
 
-    // Input
     const input = document.createElement('input');
     input.type = field.Type || 'text';
-    input.id = field.Value;
     input.name = field.Value;
-
-    if (field.Placeholder) {
-      input.placeholder = field.Placeholder;
-    }
+    input.id = field.Value;
 
     if (field.Mandate === 'true') {
       input.required = true;
     }
 
-    wrapper.appendChild(input);
+    wrapper.append(label, input);
     form.appendChild(wrapper);
   });
 
-  // 5. Submit button
-  const submitBtn = document.createElement('button');
-  submitBtn.type = 'submit';
-  submitBtn.textContent = 'Submit';
-  form.appendChild(submitBtn);
+  const btn = document.createElement('button');
+  btn.type = 'submit';
+  btn.textContent = 'Submit';
 
-  // 6. Append form to block
+  form.appendChild(btn);
   block.appendChild(form);
 }
