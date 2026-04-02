@@ -1,23 +1,25 @@
 export default function decorate(block) {
   let json;
 
+  // 1. Parse JSON authored in the block
   try {
     json = JSON.parse(block.textContent);
   } catch (e) {
-    console.error('Invalid JSON input for form block', e);
+    console.error('custom-form: Invalid JSON', e);
     return;
   }
 
-  // Clear raw JSON
+  // 2. Clear raw JSON from DOM
   block.innerHTML = '';
 
+  // 3. Create form
   const form = document.createElement('form');
-  form.className = 'eds-form';
+  form.className = 'custom-form';
 
-  // Loop through sheet data
+  // 4. Loop over sheet data
   json.data.forEach((field) => {
-    const fieldWrapper = document.createElement('div');
-    fieldWrapper.className = 'form-field';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'form-field';
 
     const fieldName = field['Name ']?.trim() || field.Value;
 
@@ -25,7 +27,7 @@ export default function decorate(block) {
     const label = document.createElement('label');
     label.setAttribute('for', field.Value);
     label.textContent = fieldName;
-    fieldWrapper.appendChild(label);
+    wrapper.appendChild(label);
 
     // Input
     const input = document.createElement('input');
@@ -41,15 +43,16 @@ export default function decorate(block) {
       input.required = true;
     }
 
-    fieldWrapper.appendChild(input);
-    form.appendChild(fieldWrapper);
+    wrapper.appendChild(input);
+    form.appendChild(wrapper);
   });
 
-  // Submit button
+  // 5. Submit button
   const submitBtn = document.createElement('button');
   submitBtn.type = 'submit';
   submitBtn.textContent = 'Submit';
   form.appendChild(submitBtn);
 
+  // 6. Append form to block
   block.appendChild(form);
 }
