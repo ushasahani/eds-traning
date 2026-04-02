@@ -1,29 +1,35 @@
 export default async function decorate(block) {
   const link = block.querySelector('a');
 
-  if (!link) {
-    console.error('custom-form: No JSON link found');
+  if (!link || !link.href) {
+    console.error('custom-form: JSON link not found');
     return;
   }
 
   let json;
   try {
-    const resp = await fetch(`${link.href}.json`);
-    json = await resp.json();
+    // ✅ IMPORTANT: fetch the link AS-IS
+    const response = await fetch(link.href);
+
+    if (!response.ok) {
+      console.error('custom-form: Fetch failed', response.status);
+      return;
+    }
+
+    json = await response.json();
   } catch (e) {
-    console.error('custom-form: Failed to fetch JSON', e);
+    console.error('custom-form: Error fetching JSON', e);
     return;
   }
 
-  if (!json || !json.data) {
-    console.error('custom-form: Invalid JSON structure');
+  if (!json?.data) {
+    console.error('custom-form: Invalid JSON structure', json);
     return;
   }
 
-  // Clear authored content (link)
+  // Clear authored content (the link)
   block.innerHTML = '';
 
-  // Create form
   const form = document.createElement('form');
   form.className = 'custom-form';
 
