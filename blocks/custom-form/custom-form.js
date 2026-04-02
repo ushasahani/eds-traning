@@ -1,14 +1,20 @@
 export default async function decorate(block) {
+  // ✅ SAFETY: do nothing if already initialized
+  if (block.dataset.initialized === 'true') {
+    return;
+  }
+  block.dataset.initialized = 'true';
+
+  // ✅ Scope everything to THIS block only
   const link = block.querySelector('a');
 
   if (!link || !link.href) {
-    console.error('custom-form: JSON link not found');
+    console.warn('custom-form: No JSON link found in this block');
     return;
   }
 
   let json;
   try {
-    // ✅ IMPORTANT: fetch the link AS-IS
     const response = await fetch(link.href);
 
     if (!response.ok) {
@@ -18,18 +24,19 @@ export default async function decorate(block) {
 
     json = await response.json();
   } catch (e) {
-    console.error('custom-form: Error fetching JSON', e);
+    console.error('custom-form: Fetch error', e);
     return;
   }
 
-  if (!json?.data) {
-    console.error('custom-form: Invalid JSON structure', json);
+  if (!json?.data?.length) {
+    console.error('custom-form: Invalid or empty JSON');
     return;
   }
 
-  // Clear authored content (the link)
-  block.innerHTML = '';
+  // ✅ Remove ONLY the link, not the whole block
+  link.remove();
 
+  // ✅ Create form
   const form = document.createElement('form');
   form.className = 'custom-form';
 
@@ -38,13 +45,13 @@ export default async function decorate(block) {
     wrapper.className = 'form-field';
 
     const label = document.createElement('label');
-    label.textContent = field['Name ']?.trim() || field.Value;
-    label.htmlFor = field.Value;
+    label.textContent = field['Name ']?.trim() || field.Value || '';
+    label.setAttribute('for', field.Value);
 
     const input = document.createElement('input');
     input.type = field.Type || 'text';
-    input.name = field.Value;
     input.id = field.Value;
+    input.name = field.Value;
 
     if (field.Placeholder) {
       input.placeholder = field.Placeholder;
@@ -58,6 +65,7 @@ export default async function decorate(block) {
     form.appendChild(wrapper);
   });
 
+  // ✅ Submit
   const submitBtn = document.createElement('button');
   submitBtn.type = 'submit';
   submitBtn.textContent = 'Submit';
