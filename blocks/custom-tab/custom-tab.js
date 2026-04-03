@@ -1,28 +1,36 @@
-document.addEventListener('DOMContentLoaded', () => {
+
+(function () {
+  // Select the custom tab block
   const block = document.querySelector('.custom-tab.block');
+  if (!block) return;
+
   const items = block.children;
 
-  // Hide all hover contents except first
-  [...items].forEach((item, index) => {
-    const content = item.children[1];
-    if (index !== 0) {
-      content.style.display = 'none';
+  // Hide all hover data except the first one
+  Array.from(items).forEach((item, index) => {
+    const hoverDiv = item.children[1];
+    if (hoverDiv && index !== 0) {
+      hoverDiv.style.display = 'none';
     }
   });
 
-  // Hover logic
-  [...items].forEach(item => {
-    const title = item.children[0];   // data / data 2 / etc
-    const content = item.children[1]; // hover data / hover data 2 / etc
+  // Add hover behavior
+  Array.from(items).forEach((item) => {
+    const dataDiv = item.children[0];   // "data", "data 2"
+    const hoverDiv = item.children[1];  // "hover data", "hover data 2"
 
-    title.addEventListener('mouseenter', () => {
-      // Hide all contents
-      [...items].forEach(i => {
-        i.children[1].style.display = 'none';
+    if (!dataDiv || !hoverDiv) return;
+
+    dataDiv.addEventListener('mouseenter', () => {
+      // Hide all hover data
+      Array.from(items).forEach(i => {
+        if (i.children[1]) {
+          i.children[1].style.display = 'none';
+        }
       });
 
-      // Show hovered content
-      content.style.display = 'block';
+      // Show the correct hover data
+      hoverDiv.style.display = 'block';
     });
   });
-});
+})();
