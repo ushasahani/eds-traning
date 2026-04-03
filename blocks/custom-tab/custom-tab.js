@@ -1,17 +1,30 @@
 
-function openTab(evt, tabId) {
-  var i, tabcontent, tablinks;
+document.addEventListener("DOMContentLoaded", function () {
+  const wrapper = document.querySelector(".custom-tab.block");
+  const items = wrapper.children;
 
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
+  // Hide all contents except first
+  Array.from(items).forEach((item, index) => {
+    const title = item.children[0];
+    const content = item.children[1];
 
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].classList.remove("active");
-  }
+    if (index !== 0) {
+      content.style.display = "none";
+    } else {
+      title.classList.add("active");
+    }
 
-  document.getElementById(tabId).style.display = "block";
-  evt.currentTarget.classList.add("active");
-}
+    // Hover functionality
+    title.addEventListener("mouseenter", () => {
+      // Hide all contents & remove active
+      Array.from(items).forEach(i => {
+        i.children[1].style.display = "none";
+        i.children[0].classList.remove("active");
+      });
+
+      // Show current
+      content.style.display = "block";
+      title.classList.add("active");
+    });
+  });
+});
