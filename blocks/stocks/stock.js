@@ -8,7 +8,7 @@ const stocks = {
   "SBI": { price: 765.20, change: 4.10, isUp: true }
 };
 
-const tickerContainer = document.getElementById('ticker-container');
+const tickerContainer = document.getElementById('stock-container');
 
 // 2. Build the Ticker UI
 function initializeTicker() {
